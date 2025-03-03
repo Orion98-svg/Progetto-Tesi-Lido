@@ -1,42 +1,92 @@
 import { prenotazioni, ombrelloni } from '../../db/collections';
-
+import { ObjectId } from 'mongodb';
 
 export async function GET({ url }) {
     try {
-        // Extract and validate the nominativo parameter
         const nominativo = url.searchParams.get('nominativo');
+        let data;
+
         if (!nominativo) {
-            return new Response(
-                JSON.stringify({ error: 'Missing nominativo parameter' }),
-                { status: 400 }
-            );
+            data = await prenotazioni
+                .aggregate([
+                    {
+                        $lookup: {
+                            from: "ombrelloni",
+                            localField: "_id",
+                            foreignField: "prenotazione_id",
+                            as: "ombrelloni"
+                        }
+                    }
+                ])
+                .toArray();
+        } else {
+            data = await prenotazioni
+                .aggregate([
+                    {
+                        $match: { nominativo }
+                    },
+                    {
+                        $lookup: {
+                            from: "ombrelloni",
+                            localField: "_id",
+                            foreignField: "prenotazione_id",
+                            as: "ombrelloni"
+                        }
+                    }
+                ])
+                .toArray();
         }
 
-        // Query the prenotazioni collection
-        const data = await prenotazioni.find({ nominativo }).toArray();
-
-        // Check if no documents were found
         if (data.length === 0) {
             return new Response(
-                JSON.stringify({ message: 'No records found for the specified nominativo' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
+                JSON.stringify({ message: "No records found for the specified nominativo" }),
+                { status: 404, headers: { "Content-Type": "application/json" } }
             );
         }
 
-        // For each booking, query related ombrelloni records and append them
-        for (let booking of data) {
-            const ombrellone = await ombrelloni.find({ prenotazione_id: booking._id }).toArray();
-            booking.ombrelloni = ombrellone;
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return new Response(
+            JSON.stringify({ error: "Internal Server Error" }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+    }
+}
+
+
+
+export async function DELETE({ request }) {
+    try {
+        const { id } = await request.json();
+        if (!id) {
+            return new Response(JSON.stringify({ error: "ID is required" }), { status: 400 });
         }
 
-        // Return the enriched booking data
-        return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        // Delete the prenotazione
+        const prenotazioneResult = await prenotazioni.deleteOne({ _id: Number(id) });
+
+        if (prenotazioneResult.deletedCount === 1) {
+            // ✅ If prenotazione was deleted, delete associated ombrelloni
+            const ombrelloniResult = await ombrelloni.deleteMany({ prenotazione_id: Number(id) });
+
+            return new Response(
+                JSON.stringify({
+                    message: "Prenotazione deleted successfully",
+                    deletedOmbrelloni: ombrelloniResult.deletedCount
+                }),
+                { status: 200 }
+            );
+        } else {
+            return new Response(JSON.stringify({ error: "Prenotazione not found" }), { status: 404 });
+        }
     } catch (error) {
-        console.error('Error fetching data:', error);
-        return new Response(
-            JSON.stringify({ error: 'Internal Server Error' }),
-            { status: 500 }
-        );
+        console.error("Delete Error:", error);
+        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     }
 }
 

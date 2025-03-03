@@ -21,7 +21,6 @@
         fetch(`http://localhost:5173/ombrelloni?data_inizio=${data_inizio}&data_fine=${data_fine}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             let ombrelloni = [];
             data.forEach(prenotazione => {
                 ombrelloni.push(prenotazione.ombrelloni);
@@ -37,9 +36,14 @@
       prenotazione = "prenotazioneS";
     }
 
-    function conferma(){
+    function indietroAdd(){
       menu = "button-containerS";
       prenotazione = "nascosto";
+    }
+
+    function indietroCer(){
+      menu = "button-containerS";
+      cercap = "nascosto";
     }
 
     function visualizza(){
@@ -49,8 +53,7 @@
 
     async function cercapersone() {
         if (!nome) {
-            openDialog("Please provide a valid name to search.");
-            return;
+            nome = "";
         }
 
         try {
@@ -66,10 +69,7 @@
         } catch (error) {
             console.error("Fetch error:", error);
             openDialog(`Failed to fetch data: ${error.message}`);
-        }
-
-        menu = "button-containerS";
-        cercap = "nascosto";
+        }   
     }
 
     function openDialog(message) {
@@ -88,7 +88,7 @@
     .button-containerS {
         text-align: center;
     }
-    .button-containerS button {
+    .button-containerS button{
         display: block; /* Ensures each button takes up a full line */
         width: 200px;
         height: 50px;    /* Optional: sets button width */
@@ -108,6 +108,19 @@
 
     .nascosto {
         display: none;
+    }
+
+    #back {
+      display: block;
+        width: 100px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 2s;
+    }
+
+    #back:hover {
+        background-color: red;
+        transition: 2s;
     }
 
     .prenotazioneS input {
@@ -170,7 +183,7 @@
   
   <div class={prenotazione}>
     <h1 >Prenotazione</h1>
-    <form on:submit|preventDefault={conferma} style="display:flex;  justify-content: center;">
+    <form on:submit|preventDefault={indietroAdd} style="display:flex;  justify-content: center;">
       <table>
         <tbody>
           <tr>
@@ -208,6 +221,7 @@
           <tr>
             <td colspan="2" style="text-align: center;">
               <input type="submit" value="Conferma" />
+              <button type="button" id="back"  style="height:20px;" on:click={indietroAdd} >Annulla</button>
             </td>
           </tr>
         </tbody>
@@ -222,6 +236,9 @@
       <input type="text" bind:value={nome} name="cerca" />
       <input type="submit" id="tstCer" value="Cerca" />
     </form>
+    <button id="back" on:click={indietroCer}>
+      <p>Annulla</p>
+    </button>
     <Dialog isOpen={dialogOpen} message={dialogMessage} onClose={closeDialog} />
   </div>
   

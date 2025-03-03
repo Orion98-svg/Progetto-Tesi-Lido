@@ -42,7 +42,7 @@
     {#each grid as row}
       <div class="row">
         {#each row as ombrellone}
-          <Ombrellone num={ombrellone.numero} fila={ombrellone.fila} prenotato={prenotato({"num": ombrellone.numero, "fila": ombrellone.fila})} />
+          <Ombrellone num={ombrellone.numero} fila={ombrellone.fila} prenotato={prenotato({"num": ombrellone.numero, "fila": ombrellone.fila})}/>
         {/each}
       </div>
     {/each}

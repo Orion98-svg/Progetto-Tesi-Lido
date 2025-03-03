@@ -11,6 +11,7 @@
 	.container {
 		display: grid;
 		grid-template-columns: 1fr 3fr 1fr;
+		height: 140vh;
 	}
 
 	.menu{
@@ -23,6 +24,7 @@
 		padding: 10px;
 		background-color: #c5c4c4;
 		overflow-y: auto;
+		overflow-x: auto;
 		margin : 0 10px;
 	}
 

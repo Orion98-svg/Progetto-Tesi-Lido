@@ -35,8 +35,6 @@ export async function GET({ url }) {
             booking.ombrelloni = ombrellone;
         }
 
-        console.log(data);
-
         // Return the enriched booking data
         return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
