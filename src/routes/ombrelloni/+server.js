@@ -4,8 +4,17 @@ import { prenotazioni, ombrelloni } from '../../db/collections';
 export async function GET({ url }) {
     try {
         // Extract and validate the nominativo parameter
-        const dataInizio = url.searchParams.get('data_inizio');
-        const dataFine = url.searchParams.get('data_fine');
+        const rawdataInizio = url.searchParams.get('data_inizio');
+        const rawdataFine = url.searchParams.get('data_fine');
+
+
+        const normalizeDate = (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB'); // Conversione data nel formato GG/MM/AAAA
+        };
+
+        const dataInizio = normalizeDate(rawdataInizio);
+        const dataFine = normalizeDate(rawdataFine);
 
         if (!dataInizio || !dataFine) {
             return new Response(

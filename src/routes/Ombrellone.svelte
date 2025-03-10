@@ -1,13 +1,12 @@
 <script>
     export let num = 0;
     export let fila = 0;
-    let sdraio = 0;
-    let lettino = 0;
+    export let sdraio = 0;
+    export let lettino = 0;
     export let prenotato = false;
-
 </script>
 
-<button class = "bottone {prenotato ? 'bottone_prenotato' : ''}"> 
+<button class="bottone {prenotato ? 'bottone_prenotato' : ''}">
     <div>N: {num}</div>
     <div>F: {fila}</div>
     <div>S: {sdraio} L: {lettino}</div>
@@ -17,14 +16,14 @@
     .bottone {
         background-color: #369137; /* Green */
         border: 2px solid black;
-        border-radius: 20px;
-        width: 90px;
-        height: 70px;
+        border-radius: 0.5vw; /* Use viewport width for border-radius */
+        width: 3vw; /* Use viewport width for width */
+        height: 3vw; /* Use viewport height for height */
         color: white;
         text-align: center;
-        font-size: 14px;
-        font-family:sans-serif;
-        margin: 4px 4px;
+        font-size: 0.5vw; /* Use viewport width for font-size */
+        font-family: sans-serif;
+        margin: 0.2vw; /* Use viewport width for margin */
         cursor: pointer;
     }
 

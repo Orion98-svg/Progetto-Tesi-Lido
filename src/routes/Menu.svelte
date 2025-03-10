@@ -1,6 +1,6 @@
 <script>
     // Any menu-related logic here
-    import { listPrenotazioni, listOmbrelloni } from '../store.js';
+    import { listPrenotazioni, listOmbrelloni, listPrenotazioniGG } from '../store.js';
     import Dialog from './Dialog.svelte';
     let dialogOpen = false;
     let dialogMessage = "";
@@ -17,18 +17,31 @@
     let prezzo = "";
     let pagato = false;
 
-    function cercaOmbrellone(data_inizio, data_fine){
-        fetch(`http://localhost:5173/ombrelloni?data_inizio=${data_inizio}&data_fine=${data_fine}`)
-        .then(response => response.json())
-        .then(data => {
+    async function cercaOmbrellone(data_inizio, data_fine) {
+        try {
+            const response = await fetch(`http://localhost:5173/ombrelloni?data_inizio=${data_inizio}&data_fine=${data_fine}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Error fetching data.");
+            }
+
+            const data = await response.json();
+            if (!Array.isArray(data)) {
+                throw new TypeError("Expected an array but got something else.");
+            }
+
             let ombrelloni = [];
             data.forEach(prenotazione => {
                 ombrelloni.push(prenotazione.ombrelloni);
             });
-            //flatten the arrays
+
+            // Flatten the arrays
             let sombrelloni = ombrelloni.flat();
             listOmbrelloni.set(sombrelloni);
-        })
+        } catch (error) {
+            console.error("Fetch error:", error);
+            openDialog(`Failed to fetch data: ${error.message}`);
+        }
     }
 
     function newP(){
@@ -44,11 +57,36 @@
     function indietroCer(){
       menu = "button-containerS";
       cercap = "nascosto";
+      listPrenotazioni.set([]);
+      prenotazioniGiornalieri();
     }
+
+    $:console.log($listPrenotazioniGG, " m");
 
     function visualizza(){
       menu = "nascosto";
       cercap = "visualizzaS";
+      cercapersone();
+    }
+
+    async function prenotazioniGiornalieri() {
+        try {
+            const response = await fetch('/prenotazioni', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }); // Invia una richiesta GET al server per ottenere le prenotazioni giornaliere
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch today\'s reservations');
+            }
+
+            const data = await response.json(); // Ottiene i dati dalla risposta del server
+            listPrenotazioniGG.set(data); // Imposta i dati delle prenotazioni nello store listPrenotazioni
+        } catch (error) {
+            console.error("Fetch error:", error); // Stampa un messaggio di errore se c'è un'eccezione
+        }
     }
 
     async function cercapersone() {
@@ -232,9 +270,9 @@
   <div class = {cercap}>
     <h1 >Visualizza prenotazioni</h1>
     <form on:submit|preventDefault={cercapersone}>
-      <label for="cerca">Inserisci Nominativo: </label>
-      <input type="text" bind:value={nome} name="cerca" />
-      <input type="submit" id="tstCer" value="Cerca" />
+      <label for="cerca">filtra per nome: </label>
+      <input type="text" bind:value={nome} name="cerca" placeholder="Inserisci nominativo"/>
+      <input type="submit" id="tstCer" value="Filtra" />
     </form>
     <button id="back" on:click={indietroCer}>
       <p>Annulla</p>

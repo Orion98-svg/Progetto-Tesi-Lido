@@ -11,29 +11,18 @@
 	.container {
 		display: grid;
 		grid-template-columns: 1fr 3fr 1fr;
-		height: 140vh;
+		height: 100vh;
 	}
 
-	.menu{
-		padding-inline: 1rem;
-		background-color: #f0f0f0;
-		border: rgb(26, 16, 16);
+	.menu, .ombrelloni, .prenotazioni {	
+		margin: 5px;
+        background-color: #f0f0f0;
+    }
+
+	.prenotazioni{
+		overflow: auto;
 	}
 
-	.ombrelloni {
-		padding: 10px;
-		background-color: #c5c4c4;
-		overflow-y: auto;
-		overflow-x: auto;
-		margin : 0 10px;
-	}
-
-	.prenotazioni {
-		padding: 1rem;
-		background-color: #f0f0f0;
-		border: rgb(26, 16, 16);
-		overflow-y: auto;
-	}
 </style>
 
 
